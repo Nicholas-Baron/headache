@@ -1,5 +1,6 @@
 
 use std::fs;
+use std::collections::{HashMap, hash_map};
 use std::path::PathBuf;
 use structopt::StructOpt;
 
@@ -31,13 +32,50 @@ fn load_program(filename : &str) -> Option<String>{
     }
 }
 
+fn run_program (commands : String) -> (i32, HashMap::<i32, u8>) {
+    
+    let mut ptr = 0;
+    let mut ram = HashMap::new();
+    for command in commands.chars() {
+        match command {
+            '.' => {
+                match  ram.entry(ptr){
+                    hash_map::Entry::Occupied(entry) => print!("{}", entry.get()),
+                    _ => {}
+                }
+            },
+            ',' => {},
+            '<' => ptr -= 1,
+            '>' => ptr += 1,
+            _ => panic!("Unimplemented BF command: {}", command),
+        }
+    }
+
+    (ptr, ram)
+}
 
 fn main(){
 
     let opt = CliOpt::from_args();
+    
     // First, read the program
-
-    let program = load_program(opt.input.into_os_string().to_str().expect("Could not read input file path"));
+    let program = load_program(opt.input.into_os_string().to_str().expect("Could not read input file path")).expect("Could not read program");
 
     // Then, execute it in some machine
+    let final_state = run_program(program);
+
+    if opt.debug {
+        let width = 10;
+        let center = final_state.0;
+
+        for i in center - (width/2).. center + (width/2){
+            print!("{:3}", i);
+        }
+        println!("");
+
+        for i in center - (width/2).. center + (width/2){
+            print!("{:3}", final_state.1.get(&i).unwrap_or(&0));
+        }
+        println!("");
+    }
 }
