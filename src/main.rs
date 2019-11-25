@@ -75,7 +75,7 @@ fn run_program(commands: String) -> (i32, HashMap<i32, u8>) {
                     }
                 }
             }
-            _ => panic!("Unimplemented BF command: {}", command),
+            _ => panic!("Unimplemented BF command: {} @ {}", command, pc),
         }
         pc += 1;
     }
@@ -94,6 +94,10 @@ fn main() {
             .expect("Could not read input file path"),
     )
     .expect("Could not read program");
+
+    if opt.debug {
+        println!("Program loaded: {}", program);
+    }
 
     // Then, execute it in some machine
     let final_state = run_program(program);
