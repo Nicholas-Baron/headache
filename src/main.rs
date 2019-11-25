@@ -58,6 +58,12 @@ fn run_program(commands: String) -> (i32, HashMap<i32, u8>) {
                     None => None,
                 };
             }
+            '-' => {
+                match ram.insert(ptr, std::u8::MAX) {
+                    Some(value) => ram.insert(ptr, value - 1),
+                    None => None,
+                };
+            }
             '[' => {
                 if ram.get(&ptr).unwrap_or(&0) == &0 {
                     loop {
