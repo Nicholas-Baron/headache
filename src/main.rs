@@ -35,11 +35,15 @@ fn run_program(commands: String) -> (i32, HashMap<i32, u8>) {
     let mut ptr = 0;
     let mut ram = HashMap::new();
     for command in commands.chars() {
+        use hash_map::Entry::Occupied;
         match command {
-            '.' => match ram.entry(ptr) {
-                hash_map::Entry::Occupied(entry) => print!("{}", entry.get()),
-                _ => {}
-            },
+            '.' => {
+                if let Occupied(entry) = ram.entry(ptr) {
+                    print!("{}", entry.get());
+                } else {
+                    print!("0");
+                }
+            }
             ',' => {}
             '<' => ptr -= 1,
             '>' => ptr += 1,
@@ -72,11 +76,11 @@ fn main() {
         for i in center - (width / 2)..center + (width / 2) {
             print!("{:3}", i);
         }
-        println!("");
+        println!();
 
         for i in center - (width / 2)..center + (width / 2) {
             print!("{:3}", final_state.1.get(&i).unwrap_or(&0));
         }
-        println!("");
+        println!();
     }
 }
