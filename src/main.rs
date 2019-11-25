@@ -52,6 +52,12 @@ fn run_program(commands: String) -> (i32, HashMap<i32, u8>) {
             ',' => {}
             '<' => ptr -= 1,
             '>' => ptr += 1,
+            '+' => {
+                match ram.insert(ptr, 1) {
+                    Some(value) => ram.insert(ptr, value + 1),
+                    None => None
+                };
+            }
             _ => panic!("Unimplemented BF command: {}", command),
         }
         pc += 1;
