@@ -34,14 +34,19 @@ fn load_program(filename: &str) -> Option<String> {
 fn run_program(commands: String) -> (i32, HashMap<i32, u8>) {
     let mut ptr = 0;
     let mut ram = HashMap::new();
-    for command in commands.chars() {
-        use hash_map::Entry::Occupied;
+    let mut pc = 0;
+    loop {
+        let command = commands.chars().nth(pc);
+        if command.is_none() {
+            break;
+        }
+
+        let command = command.unwrap();
         match command {
             '.' => {
+                use hash_map::Entry::Occupied;
                 if let Occupied(entry) = ram.entry(ptr) {
                     print!("{}", entry.get());
-                } else {
-                    print!("0");
                 }
             }
             ',' => {}
@@ -49,6 +54,7 @@ fn run_program(commands: String) -> (i32, HashMap<i32, u8>) {
             '>' => ptr += 1,
             _ => panic!("Unimplemented BF command: {}", command),
         }
+        pc += 1;
     }
 
     (ptr, ram)
