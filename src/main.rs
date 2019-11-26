@@ -81,6 +81,23 @@ fn run_program(commands: String) -> (i32, HashMap<i32, i8>) {
                     }
                 }
             }
+            ']' => {
+                if ram.get(&ptr).unwrap_or(&0) != &0 {
+                    loop {
+                        let command = commands.chars().nth(pc);
+                        match command {
+                            None => break,
+                            Some(cmd) => {
+                                if cmd == '[' {
+                                    break;
+                                } else {
+                                    pc -= 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             _ => panic!("Unimplemented BF command: {} @ {}", command, pc),
         }
         pc += 1;
