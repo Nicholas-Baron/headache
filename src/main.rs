@@ -25,16 +25,11 @@ fn load_program(filename: &str) -> Option<Vec<Command>> {
             println!("Could not read file");
             None
         }
-        Ok(data) => {
-            println!("{}", data);
-            let mut to_ret = Vec::with_capacity(data.len());
-            for c in data.chars() {
-                if let Some(cmd) = turing_machine::to_command(c) {
-                    to_ret.push(cmd);
-                }
-            }
-            Some(to_ret)
-        }
+        Ok(data) => Some(
+            data.chars()
+                .filter_map(turing_machine::to_command)
+                .collect(),
+        ),
     }
 }
 
