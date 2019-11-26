@@ -49,7 +49,7 @@ fn run_program(commands: String, debug: bool) -> (i32, HashMap<i32, u32>) {
             '.' => {
                 use hash_map::Entry::Occupied;
                 if let Occupied(entry) = ram.entry(ptr) {
-                    print!("{}", entry.get());
+                    print!("{}", std::char::from_u32(*entry.get()).unwrap());
                 }
             }
             ',' => {}
@@ -62,8 +62,8 @@ fn run_program(commands: String, debug: bool) -> (i32, HashMap<i32, u32>) {
                 };
             }
             '-' => {
-                match ram.insert(ptr, -1) {
-                    Some(value) => ram.insert(ptr, value - 1),
+                match ram.insert(ptr, std::u32::MAX) {
+                    Some(value) => ram.insert(ptr, value.wrapping_sub(1)),
                     None => None,
                 };
             }
