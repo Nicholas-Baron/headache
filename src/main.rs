@@ -31,7 +31,7 @@ fn load_program(filename: &str) -> Option<String> {
     }
 }
 
-fn run_program(commands: String) -> (i32, HashMap<i32, i8>) {
+fn run_program(commands: String, debug: bool) -> (i32, HashMap<i32, u32>) {
     let mut ptr = 0;
     let mut ram = HashMap::new();
     let mut pc = 0;
@@ -42,6 +42,9 @@ fn run_program(commands: String) -> (i32, HashMap<i32, i8>) {
         }
 
         let command = command.unwrap();
+        if debug {
+            println!("PC now {:2}, Command {}", pc, command);
+        }
         match command {
             '.' => {
                 use hash_map::Entry::Occupied;
@@ -123,12 +126,13 @@ fn main() {
     }
 
     // Then, execute it in some machine
-    let final_state = run_program(program);
+    let final_state = run_program(program, opt.debug);
 
     if opt.debug {
         let width = 10;
         let center = final_state.0;
 
+        println!();
         for i in center - (width / 2)..center + (width / 2) {
             print!("{:3}", i);
         }
