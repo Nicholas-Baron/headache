@@ -11,11 +11,11 @@ use turing_machine::{Command, TuringMachine};
 #[derive(StructOpt)]
 #[structopt(name = "headache", about = "An interpreter for Brainfuck")]
 struct CliOpt {
-    /// Enables debug outputs
+    // Enables debug outputs
     #[structopt(short, long)]
     debug: bool,
 
-    /// Input filepath
+    // Input filepath
     input: PathBuf,
 }
 
