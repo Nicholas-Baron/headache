@@ -1,7 +1,9 @@
-use std::collections::{hash_map, HashMap};
 use std::fs;
 use std::path::PathBuf;
 use structopt::StructOpt;
+
+mod turing_machine;
+use turing_machine::{Command, TuringMachine};
 
 /// The Headache Interpreter for BrainFuck
 /// Complies to http://www.muppetlabs.com/~breadbox/bf/standards.html
@@ -17,96 +19,23 @@ struct CliOpt {
     input: PathBuf,
 }
 
-fn load_program(filename: &str) -> Option<String> {
-    fn is_bf_command(c: char) -> bool {
-        c == '.' || c == ',' || c == '[' || c == ']' || c == '<' || c == '>' || c == '+' || c == '-'
-    }
-
+fn load_program(filename: &str) -> Option<Vec<Command>> {
     match fs::read_to_string(filename) {
         Err(_) => {
             println!("Could not read file");
             None
         }
-        Ok(data) => Some(data.chars().filter(|&x| is_bf_command(x)).collect()),
+        Ok(data) => {
+            println!("{}", data);
+            let mut to_ret = Vec::with_capacity(data.len());
+            for c in data.chars() {
+                if let Some(cmd) = turing_machine::to_command(c) {
+                    to_ret.push(cmd);
+                }
+            }
+            Some(to_ret)
+        }
     }
-}
-
-fn run_program(commands: String, debug: bool) -> (i32, HashMap<i32, u32>) {
-    let mut ptr = 0;
-    let mut ram = HashMap::new();
-    let mut pc = 0;
-    loop {
-        let command = commands.chars().nth(pc);
-        if command.is_none() {
-            break;
-        }
-
-        let command = command.unwrap();
-        if debug {
-            println!("PC now {:2}, Command {}", pc, command);
-        }
-        match command {
-            '.' => {
-                use hash_map::Entry::Occupied;
-                if let Occupied(entry) = ram.entry(ptr) {
-                    print!("{}", std::char::from_u32(*entry.get()).unwrap());
-                }
-            }
-            ',' => {}
-            '<' => ptr -= 1,
-            '>' => ptr += 1,
-            '+' => {
-                match ram.insert(ptr, 1) {
-                    Some(value) => ram.insert(ptr, value + 1),
-                    None => None,
-                };
-            }
-            '-' => {
-                match ram.insert(ptr, std::u32::MAX) {
-                    Some(value) => ram.insert(ptr, value.wrapping_sub(1)),
-                    None => None,
-                };
-            }
-            '[' => {
-                if ram.get(&ptr).unwrap_or(&0) == &0 {
-                    loop {
-                        let command = commands.chars().nth(pc);
-                        match command {
-                            None => break,
-                            Some(cmd) => {
-                                if cmd == ']' {
-                                    break;
-                                } else {
-                                    pc += 1;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            ']' => {
-                if ram.get(&ptr).unwrap_or(&0) != &0 {
-                    loop {
-                        let command = commands.chars().nth(pc);
-                        match command {
-                            None => break,
-                            Some(cmd) => {
-                                if cmd == '[' {
-                                    break;
-                                } else {
-                                    pc -= 1;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            _ => panic!("Unimplemented BF command: {} @ {}", command, pc),
-        }
-        pc += 1;
-    }
-
-    (ptr, ram)
 }
 
 fn main() {
@@ -122,25 +51,14 @@ fn main() {
     .expect("Could not read program");
 
     if opt.debug {
-        println!("Program loaded: {}", program);
+        for cmd in &program {
+            print!("{} ", cmd);
+        }
+        println!();
     }
 
     // Then, execute it in some machine
-    let final_state = run_program(program, opt.debug);
+    let mut machine = TuringMachine::with_program(program);
 
-    if opt.debug {
-        let width = 10;
-        let center = final_state.0;
-
-        println!();
-        for i in center - (width / 2)..center + (width / 2) {
-            print!("{:3}", i);
-        }
-        println!();
-
-        for i in center - (width / 2)..center + (width / 2) {
-            print!("{:3}", final_state.1.get(&i).unwrap_or(&0));
-        }
-        println!();
-    }
+    machine.run(opt.debug);
 }
