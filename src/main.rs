@@ -31,7 +31,7 @@ fn load_program(filename: &str) -> Option<String> {
     }
 }
 
-fn run_program(commands: String) -> (i32, HashMap<i32, u8>) {
+fn run_program(commands: String) -> (i32, HashMap<i32, i8>) {
     let mut ptr = 0;
     let mut ram = HashMap::new();
     let mut pc = 0;
@@ -59,7 +59,7 @@ fn run_program(commands: String) -> (i32, HashMap<i32, u8>) {
                 };
             }
             '-' => {
-                match ram.insert(ptr, std::u8::MAX) {
+                match ram.insert(ptr, -1) {
                     Some(value) => ram.insert(ptr, value - 1),
                     None => None,
                 };
