@@ -1,6 +1,7 @@
 use std::collections::hash_map::HashMap;
 use std::fmt;
 
+/// These are the eight commands that Brainfuck supports.
 #[derive(PartialEq)]
 pub enum Command {
     MoveLeft,
@@ -13,6 +14,12 @@ pub enum Command {
     JumpBack,
 }
 
+/// This function formats a character into a BF command, returning `None` if the character is not
+/// used by BF.
+/// ```
+/// assert!(to_command('/') == None);
+/// assert!(to_command(',') == Some(Input));
+/// ```
 pub fn to_command(c: char) -> Option<Command> {
     use Command::*;
     match c {
