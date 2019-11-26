@@ -81,26 +81,26 @@ impl TuringMachine {
             JumpForward => {
                 if self.read_ram_ptr() == 0 {
                     let mut depth = 0;
-                    while self.program[self.pc] != JumpBack || depth != 0 {
+                    while self.program[self.pc] != JumpBack || depth > 0 {
+                        self.pc += 1;
                         match self.program[self.pc] {
                             JumpForward => depth += 1,
                             JumpBack => depth -= 1,
                             _ => {}
                         }
-                        self.pc += 1;
                     }
                 }
             }
             JumpBack => {
                 if self.read_ram_ptr() != 0 {
                     let mut depth = 0;
-                    while self.program[self.pc] != JumpForward || depth != 0 {
+                    while self.program[self.pc] != JumpForward || depth > 0 {
+                        self.pc -= 1;
                         match self.program[self.pc] {
                             JumpForward => depth -= 1,
                             JumpBack => depth += 1,
                             _ => {}
                         }
-                        self.pc -= 1;
                     }
                 }
             }
