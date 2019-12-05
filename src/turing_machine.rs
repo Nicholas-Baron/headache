@@ -90,8 +90,8 @@ impl TuringMachine {
         self.user_input.drain(..1).next().unwrap()
     }
 
-    fn read_ram_ptr(&self) -> u32 {
-        *(self.ram.get(&self.ptr).unwrap_or(&0))
+    fn read_ram_ptr(&self) -> &u32 {
+        self.ram.get(&self.ptr).unwrap_or(&0)
     }
 
     fn write_ram_ptr(&mut self, data: u32) {
@@ -105,13 +105,13 @@ impl TuringMachine {
             MoveRight => self.ptr += 1,
             AddOne => self.write_ram_ptr(self.read_ram_ptr() + 1),
             SubOne => self.write_ram_ptr(self.read_ram_ptr() - 1),
-            Output => print!("{}", std::char::from_u32(self.read_ram_ptr()).unwrap()),
+            Output => print!("{}", std::char::from_u32(*self.read_ram_ptr()).unwrap()),
             Input => {
                 let value = self.read_user_input() as u32;
                 self.write_ram_ptr(value);
             }
             JumpForward => {
-                if self.read_ram_ptr() == 0 {
+                if self.read_ram_ptr() == &0 {
                     let mut depth = 0;
                     while self.program[self.pc] != JumpBack || depth > 0 {
                         self.pc += 1;
@@ -124,7 +124,7 @@ impl TuringMachine {
                 }
             }
             JumpBack => {
-                if self.read_ram_ptr() != 0 {
+                if self.read_ram_ptr() != &0 {
                     let mut depth = 0;
                     while self.program[self.pc] != JumpForward || depth > 0 {
                         self.pc -= 1;
